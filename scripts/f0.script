@@ -5,7 +5,16 @@
 # Autor: 
 ## Mario Casado Mancebo 2024
 ## Universidad Nacional de Educación a Distancia
-
+# Instrucciones
+## 1. cargar los tres audios del proyecto
+## 2. cargar o crear textgrids con tres tiers:
+##    - el 1, un point tier con la frontera de sintgama entonativo
+##    - el 2, un interval tier con las vocales (para los scripts de analisis de vocales)
+##    - el 3, un interval tier con la frases
+## 3. identificar los audios en la variable lista$#
+## 4. asignar un color a cada audio en la variable color$#. Son los colores con los que se dibujarán
+## 5. ejecutar el script
+###
 
 lista$# = { "H01", "M01", "H02" }
 color$# = { "red", "blue", "green" }

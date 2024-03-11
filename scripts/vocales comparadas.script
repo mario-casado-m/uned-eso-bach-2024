@@ -1,0 +1,90 @@
+# Descripción:
+## Script de Praat para dibujar una comparativa de una vocal en cada sujeto. 
+## Por ejemplo, la vocal i en cada sujeto.
+## Requiere los audios y los TextGrids del proyecto
+###
+# Autor: 
+## Mario Casado Mancebo 2024
+## Universidad Nacional de Educación a Distancia
+###
+# Instrucciones:
+## 1. ejecutar el script extraer vocales.script
+## 2. especificar la vocal deseada en la variable vocal$
+## 3. identificar los audios en la variable lista$#
+## 4. Ejecutar el script
+###
+
+vocal$ = "e"
+
+
+Erase all
+12
+Helvetica
+Black
+
+Text top: "no", "VOCAL " + vocal$
+
+lista$# = { "M01", "H01", "H02" }
+
+snd_vocales = Create Table with column names: "snd_vocales", 0, { "id" }
+tg_vocales = Create Table with column names: "tg_vocales", 0, { "id" }
+
+for o from 1 to 3
+  selectObject: "TextGrid " + lista$# [o]
+  tg = selected("TextGrid")
+  
+  n_int = Get number of intervals: 1
+  
+  for i from 1 to n_int
+    label$ = Get label of interval: 1, i
+    if label$ == vocal$
+      start = Get start time of interval: 1, i
+      end = Get end time of interval: 1, i
+      tg_s = Extract part: start, end, "no"
+      Set interval text: 1, 1, lista$# [o]
+      selectObject: tg_vocales
+      Append row
+      r_n = Get number of rows
+      Set numeric value: r_n, "id", tg_s
+
+      selectObject: "Sound " + lista$# [o]
+      snd = selected("Sound")
+      snd_s = Extract part: start, end, "rectangular", 1, "no"
+      selectObject: snd_vocales
+      Append row
+      r_n = Get number of rows
+      Set numeric value: r_n, "id", snd_s
+    endif
+    selectObject: tg
+  endfor ; n_int
+endfor ; to 3
+
+selectObject: tg_vocales
+v1 = Get value: 1, "id"
+v2 = Get value: 2, "id"
+v3 = Get value: 3, "id"
+selectObject: v1, v2, v3
+Concatenate
+tg_c = selected("TextGrid ")
+removeObject: v1, v2, v3, tg_vocales
+
+selectObject: snd_vocales
+v1 = Get value: 1, "id"
+v2 = Get value: 2, "id"
+v3 = Get value: 3, "id"
+selectObject: v1, v2, v3
+Concatenate
+snd_c = selected("Sound ")
+removeObject: v1, v2, v3, snd_vocales
+
+selectObject: snd_c
+formant_obj = To Formant (burg): 0, 5, 5500, 0.025, 50
+Select outer viewport: 0, 12, 0, 4
+Speckle: 0, 0, 5500, 30, "yes"
+
+selectObject: tg_c
+Select outer viewport: 0, 12, 0, 5.5
+Draw: 0, 0, "yes", "yes", "yes"
+
+
+

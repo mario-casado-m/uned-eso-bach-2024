@@ -1,0 +1,76 @@
+# Descripción:
+## Script de Praat para extraer fragmentos vocálicos a partir de los audios y los TextGrids del proyecto
+###
+# Autor: 
+## Mario Casado Mancebo 2024
+## Universidad Nacional de Educación a Distancia
+# Instrucciones:
+## 1. cargar los tres audios de muestra
+## 2. cargar los textgrids o crear uno por cada audio cuyo tier número 2 tenga etiquetadas las vocales que extraer
+## 3. identificar los audios en la variable lista$#
+## 4. Ejecutar el script
+## 5. se creará un sonido y un textgrid nuevos por cada audio con las vocales concatenadas
+###
+
+lista$# = { "H01", "M01", "H02" }
+
+for o from 1 to 3
+  snd_vocales = Create Table with column names: "snd_vocales", 0, { "id", "label" }
+  tg_vocales = Create Table with column names: "tg_vocales", 0, { "id", "label" }
+
+  selectObject: o
+  selectObject: "TextGrid " + selected$("Sound")
+  tg = selected("TextGrid")
+  n_int = Get number of intervals: 2
+  
+  for i from 1 to n_int
+    label$ = Get label of interval: 2, i
+    if index("aeiou", label$) != 0 and label$ != ""
+      start = Get start time of interval: 2, i
+      end = Get end time of interval: 2, i
+      tg_s = Extract part: start, end, "no"
+      Remove tier: 1
+      Remove tier: 3
+      selectObject: tg_vocales
+      Append row
+      r_n = Get number of rows
+      Set numeric value: r_n, "id", tg_s
+      Set string value: r_n, "label", label$
+      
+      selectObject: o
+      snd_s = Extract part: start, end, "rectangular", 1, "no"
+      selectObject: snd_vocales
+      Append row
+      r_n = Get number of rows
+      Set numeric value: r_n, "id", snd_s
+      Set string value: r_n, "label", label$
+    endif
+    selectObject: tg
+  endfor ; n_int
+  
+  # textgrid
+  selectObject: tg_vocales
+  v1 = Get value: 1, "id"
+  v2 = Get value: 2, "id"
+  v3 = Get value: 3, "id"
+  v4 = Get value: 4, "id"
+  v5 = Get value: 5, "id"
+  selectObject: v1, v2, v3, v4, v5
+  Concatenate
+  tg_c = selected("TextGrid ")
+  Rename: lista$# [o]
+  removeObject: v1, v2, v3, v4, v5, tg_vocales
+  
+  # audio
+  selectObject: snd_vocales
+  v1 = Get value: 1, "id"
+  v2 = Get value: 2, "id"
+  v3 = Get value: 3, "id"
+  v4 = Get value: 4, "id"
+  v5 = Get value: 5, "id"
+  selectObject: v1, v2, v3, v4, v5
+  Concatenate
+  snd_c = selected("Sound ")
+  Rename: lista$# [o]
+  removeObject: v1, v2, v3, v4, v5, snd_vocales
+endfor ; to 3
