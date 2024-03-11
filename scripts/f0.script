@@ -1,0 +1,84 @@
+# Descripción:
+## Script de Praat para dibujar una comparativa de los contornos de F0 lineales y logarítmicos de hombres y mujeres
+## Requiere los audios y los TextGrids del proyecto
+###
+# Autor: 
+## Mario Casado Mancebo 2024
+## Universidad Nacional de Educación a Distancia
+
+
+lista$# = { "H01", "M01", "H02" }
+color$# = { "red", "blue", "green" }
+
+Erase all
+12
+Helvetica
+garnish$ = "yes"
+
+for o from 1 to 3
+  selectObject: o
+  selectObject: "TextGrid " + selected$("Sound")
+  
+  # extraccion
+  start = Get start time of interval: 3, 2
+  end = Get end time of interval: 3, 2
+  tg = Extract part: start, end, "no"
+  Remove tier: 2
+  Rename: lista$# [o]
+  selectObject: o
+  snd = Extract part: start, end, "rectangular", 1, "no"
+  Rename: lista$# [o]
+  
+    # pitch
+  if o == 2
+    pitch1 = To Pitch: 0, 100, 400 ; mujer
+  else
+    pitch1 = To Pitch: 0, 70, 400 ; hombre
+  endif
+  
+  pitch2 = Interpolate
+
+  selectObject: pitch2
+  
+  y.p = Get end time
+  y = Get value at time: y.p, "Hertz", "linear"
+
+  while y == undefined
+    y.p = y.p - 0.0001
+    y = Get value at time: y.p, "Hertz", "linear"
+  endwhile
+  
+  y.log = Get value at time: y.p, "Hertz (logarithmic)", "linear"
+
+  Colour: color$# [o]
+  Scale times to: 0, 1
+  
+  # grafico no log
+  Select outer viewport: 0, 6, 0, 3
+  Draw: 0, 0, 60, 300, garnish$
+  # garnish$ = "no"
+  
+  Text: 1, "left", y, "half", selected$("Pitch")
+
+  selectObject: tg
+  tg2 = Copy: selected$("TextGrid") + "_s"
+  Scale times to: 0, 1
+  Select outer viewport: 0, 6, 0, 5
+  Draw: 0, 0, "yes", "no", "no"
+  
+  # grafico log
+  Select outer viewport: 6, 12, 0, 3
+  selectObject: pitch2
+  Draw logarithmic: 0, 0, 60, 300, garnish$
+  garnish$ = "no"
+
+  selectObject: tg2
+  Select outer viewport: 6, 12, 0, 5
+  Draw: 0, 0, "yes", "no", "no"
+  
+  plusObject: pitch1
+  plusObject: pitch2
+  plusObject: snd
+  plusObject: tg
+  Remove
+endfor
