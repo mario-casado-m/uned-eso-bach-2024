@@ -1,0 +1,19 @@
+audios$# = {"H01", "M01", "H02"}
+colores$# = {"red", "green", "blue"}
+
+Erase all
+Select outer viewport: 0, 12, 0, 4
+
+
+for i from 1 to 3
+Colour: colores$# [i]
+selectObject: "Formant " + audios$# [i]
+Draw tracks: 0, 0, 5500, "no"
+endfor
+
+Colour: "black"
+Select outer viewport: 0, 12, 0, 5
+selectObject: "TextGrid " + audios$# [1]
+Draw: 0, 0, "yes", "yes", "yes"
+
+
